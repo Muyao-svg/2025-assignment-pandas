@@ -1,16 +1,18 @@
-"""Plotting referendum results in pandas.
+"""
+Plotting referendum results in pandas.
 
-In short, we want to make beautiful map to report results of a referendum.
-In some way, we would like to depict results with something similar to the maps
-that you can find here:
+We want to make a beautiful map to report results of a referendum.
+We would like to depict results with something similar to the maps
+found here:
 https://github.com/x-datascience-datacamp/datacamp-assignment-pandas/blob/main/example_map.png
 
-To do that, you will load the data as pandas.DataFrame, merge the info and
-aggregate them by regions and finally plot them on a map using `geopandas`.
+To do that, we load the data as pandas.DataFrame, merge the info and
+aggregate them by regions and finally plot them on a map using geopandas.
 """
-import pandas as pd
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def load_data():
@@ -18,7 +20,6 @@ def load_data():
     referendum = pd.read_csv("data/referendum.csv", sep=";")
     regions = pd.read_csv("data/regions.csv")
     departments = pd.read_csv("data/departments.csv")
-
     return referendum, regions, departments
 
 
@@ -44,9 +45,8 @@ def merge_regions_and_departments(regions, departments):
         }
     )
 
-    return regions_and_departments[
-        ["code_reg", "name_reg", "code_dep", "name_dep"]
-    ]
+    cols = ["code_reg", "name_reg", "code_dep", "name_dep"]
+    return regions_and_departments[cols]
 
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
@@ -78,26 +78,21 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
         right_on="code_dep",
         how="inner",
     )
-
     return merged
 
 
 def compute_referendum_result_by_regions(referendum_and_areas):
     """Return a table with the absolute count for each region."""
+    cols = [
+        "Registered",
+        "Abstentions",
+        "Null",
+        "Choice A",
+        "Choice B",
+    ]
     result = (
-        referendum_and_areas
-        .groupby("name_reg", as_index=False)[
-            [
-                "Registered",
-                "Abstentions",
-                "Null",
-                "Choice A",
-                "Choice B",
-            ]
-        ]
-        .sum()
+        referendum_and_areas.groupby("name_reg", as_index=False)[cols].sum()
     )
-
     return result
 
 
@@ -112,9 +107,8 @@ def plot_referendum_map(referendum_result_by_regions):
         how="left",
     )
 
-    regions_geo["ratio"] = (
-        regions_geo["Choice A"]
-        / (regions_geo["Choice A"] + regions_geo["Choice B"])
+    regions_geo["ratio"] = regions_geo["Choice A"] / (
+        regions_geo["Choice A"] + regions_geo["Choice B"]
     )
 
     regions_geo.plot(
@@ -122,7 +116,6 @@ def plot_referendum_map(referendum_result_by_regions):
         cmap="OrRd",
         legend=True,
     )
-
     return regions_geo
 
 
